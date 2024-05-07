@@ -21,8 +21,8 @@ public class gamescreen extends ScreenAdapter {
 
         batch = new SpriteBatch();
         spriteTexture = new Texture("Ship.png");
-        x = 100;
-        y = 200;
+        x = 0;
+        y = 0;
         // Set input processor
         Gdx.input.setInputProcessor(new InputAdapter() {
 
@@ -50,19 +50,19 @@ public class gamescreen extends ScreenAdapter {
         switch (keycode) {
             case 32:
                 x = 100;
-                y = 200;
+                y = 0;
                 break;
             case 34:
                 x = 200;
-                y = 200;
+                y = 0;
                 break;
             case 38:
                 x = 400;
-                y = 200;
+                y = 0;
                 break;
             case 39:
                 x = 500;
-                y = 200;
+                y = 0;
                 break;
         }
     }
