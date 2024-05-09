@@ -29,7 +29,7 @@ public class ModelLoader {
     public ModelLoader(World world) {
         this.world = world;
         this.player = new Player();
-        world.setGravity(new Vector2(0, -9.8f)); // Set gravity to Earth-like gravity (downward)
+        world.setGravity(new Vector2(0, -100.8f)); // Set gravity to Earth-like gravity (downward)
         // Load ground model (assuming "ground.g3db" exists in assets folder)
         UBJsonReader jsonReader = new UBJsonReader();
         G3dModelLoader modelLoader = new G3dModelLoader(jsonReader);
@@ -94,7 +94,7 @@ public class ModelLoader {
         playerShape.dispose();
 
         // Position the player slightly above the ground
-        playerInstance.transform.translate(0, 200f, 0);
+        playerInstance.transform.translate(0, 100f, 0);
 
         // Scale the player model
         playerInstance.transform.scale(100f, 100f, 100f);
@@ -107,15 +107,17 @@ public class ModelLoader {
         player.update();
 
         // Sync camera position and orientation with player's position and orientation
-        player.getCamera().position.set(player.getPosition()); // Update camera position
-        player.getCamera().update(); // Update camera
+        //playerInstance.transform.translate(player.x,player.y,player.z-50);
+        //player.getCamera().position.set(player.getPosition()); // Update camera position
+        //player.getCamera().update(); // Update camera
 
         // Render player and ground instances
 
         modelBatch.render(groundInstance);
 
         modelBatch.render(playerInstance);
-        
+
+
 
         // Apply gravity to the player's body
         playerBody.applyForceToCenter(0, -9.8f * playerBody.getMass(), true);
@@ -123,6 +125,9 @@ public class ModelLoader {
 
     public void update(){
         player.update();
+        float deltaTime = Gdx.graphics.getDeltaTime();
+        world.step(deltaTime, 6, 2);
         playerBody.applyForceToCenter(0, -playerBody.getMass() * world.getGravity().y, true);
+
     }
 }

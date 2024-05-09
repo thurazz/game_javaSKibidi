@@ -13,7 +13,7 @@ public class MyGameScreen extends ScreenAdapter {
     private MyEnvironment environment;
     private Player player;
     private ModelBatch modelBatch;
-    private boolean isMouseVisible = false;
+    private boolean isMouseVisible = true;
     private int keycode;
 
     public MyGameScreen() {
@@ -46,7 +46,7 @@ public class MyGameScreen extends ScreenAdapter {
         float moveSpeed = 3f;
         Vector3 moveDirection = new Vector3();
 
-        /*if (keycode == Input.Keys.ESCAPE) {
+        if (keycode == 111) {
             if (isMouseVisible) {
                 Gdx.input.setCursorCatched(true);
                 isMouseVisible = false;
@@ -54,7 +54,7 @@ public class MyGameScreen extends ScreenAdapter {
                 Gdx.input.setCursorCatched(false);
                 isMouseVisible = true;
             }
-        }*/
+        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             player.getPosition().add(player.getCamera().direction.cpy().scl(moveSpeed));
