@@ -103,6 +103,7 @@ public class ModelLoader {
 
     public void render(ModelBatch modelBatch) {
         // Update player logic (e.g., movement)
+
         player.update();
 
         // Sync camera position and orientation with player's position and orientation
@@ -110,8 +111,11 @@ public class ModelLoader {
         player.getCamera().update(); // Update camera
 
         // Render player and ground instances
-        modelBatch.render(groundInstance, player.getCamera());
-        modelBatch.render(playerInstance, player.getCamera());
+
+        modelBatch.render(groundInstance);
+
+        modelBatch.render(playerInstance);
+        
 
         // Apply gravity to the player's body
         playerBody.applyForceToCenter(0, -9.8f * playerBody.getMass(), true);

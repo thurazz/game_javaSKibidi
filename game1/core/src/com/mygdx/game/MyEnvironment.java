@@ -20,8 +20,11 @@ public class MyEnvironment {
     }
 
     public void render(ModelBatch modelBatch, Camera camera) {
+
         modelBatch.begin(camera);
+
         modelLoader.render(modelBatch);
+
         modelBatch.end();
     }
 }
