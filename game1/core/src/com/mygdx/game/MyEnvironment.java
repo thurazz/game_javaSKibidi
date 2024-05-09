@@ -16,7 +16,7 @@ public class MyEnvironment {
         environment = new Environment();
         // Customize environment settings (lighting, fog, etc.) if needed
 
-        modelLoader = new ModelLoader(new World(new Vector2(0, -9.8f),true));
+        modelLoader = new ModelLoader(new World(new Vector2(0, -9.8f),false));
     }
 
     public void render(ModelBatch modelBatch, Camera camera) {

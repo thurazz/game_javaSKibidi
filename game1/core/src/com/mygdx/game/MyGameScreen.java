@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 
 public class MyGameScreen extends ScreenAdapter {
@@ -15,6 +16,8 @@ public class MyGameScreen extends ScreenAdapter {
     private ModelBatch modelBatch;
     private boolean isMouseVisible = true;
     private int keycode;
+    private ModelLoader grr = new ModelLoader();
+    private ModelInstance playergrr = grr.getPlayerInstance();
 
     public MyGameScreen() {
         environment = new MyEnvironment();

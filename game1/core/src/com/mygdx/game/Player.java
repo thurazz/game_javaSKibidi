@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import sun.rmi.runtime.Log;
-
+import com.mygdx.game.ModelLoader;
 public class Player {
 
     private PerspectiveCamera camera;
@@ -15,7 +15,8 @@ public class Player {
     public float z;
 
     public Player() {
-        camera = new PerspectiveCamera(70, 800, 600);
+
+        camera = new PerspectiveCamera(70, 1400, 800);
         camera.near = 0.1f;
         camera.far = 10000f;
 
@@ -26,10 +27,11 @@ public class Player {
     }
 
     public void update() {
+
         x = position.x;
         y = position.y;
         z = position.z;
-        //System.out.println(x);
+        System.out.println(position.x);
     }
 
     public void move(Vector3 movement) {

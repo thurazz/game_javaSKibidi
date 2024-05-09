@@ -25,9 +25,11 @@ public class ModelLoader {
     private ModelInstance playerInstance;
     private World world;
 
+    public ModelLoader(){
 
+    }
     public ModelLoader(World world) {
-        this.world = world;
+        //this.world = world;
         this.player = new Player();
         world.setGravity(new Vector2(0, -100.8f)); // Set gravity to Earth-like gravity (downward)
         // Load ground model (assuming "ground.g3db" exists in assets folder)
@@ -68,6 +70,7 @@ public class ModelLoader {
         // Load player model (assuming "player.g3db" exists in assets folder)
         Model playerModel = modelLoader.loadModel(Gdx.files.internal("player.g3db"));
         playerInstance = new ModelInstance(playerModel);
+
 
         BodyDef playerBodyDef = new BodyDef();
         playerBodyDef.type = BodyDef.BodyType.DynamicBody;
@@ -123,10 +126,15 @@ public class ModelLoader {
         playerBody.applyForceToCenter(0, -9.8f * playerBody.getMass(), true);
     }
 
+    public ModelInstance getPlayerInstance(){
+        return playerInstance;
+    }
+
     public void update(){
         player.update();
         float deltaTime = Gdx.graphics.getDeltaTime();
         world.step(deltaTime, 6, 2);
+
         playerBody.applyForceToCenter(0, -playerBody.getMass() * world.getGravity().y, true);
 
     }
