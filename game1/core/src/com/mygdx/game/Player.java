@@ -8,7 +8,7 @@ import sun.rmi.runtime.Log;
 import com.mygdx.game.ModelLoader;
 public class Player {
 
-    private PerspectiveCamera camera;
+    public PerspectiveCamera camera;
     private Vector3 position;
     public float x;
     public float y;
@@ -31,7 +31,7 @@ public class Player {
         x = position.x;
         y = position.y;
         z = position.z;
-        System.out.println(position.x);
+        //System.out.println(position.x);
     }
 
     public void move(Vector3 movement) {
@@ -50,4 +50,5 @@ public class Player {
     public Vector3 getPosition() {
         return position;
     }
+
 }

@@ -22,6 +22,8 @@ public class ModelLoader {
     private Body playerBody;
     private Player player;
     private ModelInstance groundInstance;
+    private ModelInstance grrInsta;
+    private ModelInstance grrPlayer;
     private ModelInstance playerInstance;
     private World world;
 
@@ -66,12 +68,10 @@ public class ModelLoader {
 
         groundInstance.transform.setToTranslation(0f, 0f, 0f);
 
-
-        // Load player model (assuming "player.g3db" exists in assets folder)
+        //Load player Model
         Model playerModel = modelLoader.loadModel(Gdx.files.internal("player.g3db"));
+
         playerInstance = new ModelInstance(playerModel);
-
-
         BodyDef playerBodyDef = new BodyDef();
         playerBodyDef.type = BodyDef.BodyType.DynamicBody;
         playerBodyDef.position.set(0, 10); // Set initial position of the player
@@ -117,9 +117,10 @@ public class ModelLoader {
         // Render player and ground instances
 
         modelBatch.render(groundInstance);
-
+        grrInsta = groundInstance;
         modelBatch.render(playerInstance);
-
+        //System.out.println(playerInstance);
+        grrPlayer = playerInstance;
 
 
         // Apply gravity to the player's body
@@ -127,6 +128,8 @@ public class ModelLoader {
     }
 
     public ModelInstance getPlayerInstance(){
+        System.out.println(playerInstance);
+        System.out.println(grrPlayer);
         return playerInstance;
     }
 
