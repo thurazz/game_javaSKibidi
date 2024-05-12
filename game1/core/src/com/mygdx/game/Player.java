@@ -16,13 +16,13 @@ public class Player {
 
     public Player() {
 
-        camera = new PerspectiveCamera(70, 1400, 800);
+        camera = new PerspectiveCamera(110, 1920, 1080);
         camera.near = 0.1f;
         camera.far = 10000f;
 
         position = new Vector3(0, 180f, 105);
-        camera.position.set(position); // Set camera position to player's position initially
-        camera.lookAt(position); // Make camera look at player's position
+        camera.position.set(0f,0f,0f); // Set camera position to player's position initially
+        camera.lookAt(0f,100f,0f); // Make camera look at player's position
         camera.update();
     }
 
