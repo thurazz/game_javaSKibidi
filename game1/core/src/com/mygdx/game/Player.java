@@ -3,6 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import sun.rmi.runtime.Log;
 import com.mygdx.game.ModelLoader;
@@ -16,13 +17,16 @@ public class Player {
 
     public Player() {
 
-        camera = new PerspectiveCamera(110, 1920, 1080);
+        camera = new PerspectiveCamera(150, 1920, 1080);
         camera.near = 0.1f;
         camera.far = 10000f;
 
-        position = new Vector3(0, 180f, 105);
+        position = new Vector3(0, 80f, 60f);
+
         camera.position.set(0f,0f,0f); // Set camera position to player's position initially
+
         camera.lookAt(0f,100f,0f); // Make camera look at player's position
+
         camera.update();
     }
 

@@ -69,7 +69,7 @@ public class ModelLoader {
         groundInstance.transform.setToTranslation(0f, 0f, 0f);
 
         //Load player Model
-        Model playerModel = modelLoader.loadModel(Gdx.files.internal("player.g3db"));
+        Model playerModel = modelLoader.loadModel(Gdx.files.internal("skinmodel1/player.g3db"));
 
         playerInstance = new ModelInstance(playerModel);
         BodyDef playerBodyDef = new BodyDef();
