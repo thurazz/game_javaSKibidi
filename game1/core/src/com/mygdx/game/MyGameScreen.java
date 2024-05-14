@@ -7,6 +7,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
@@ -23,7 +24,7 @@ public class MyGameScreen extends ScreenAdapter {
     private boolean isMouseVisible = true;
     private ModelLoader modelLoader;
     private ModelInstance playerInstance;
-
+    private AnimationController animationController;
     private Vector3 playerPosition = new Vector3(0, 0, 0);
     private Vector3 cameraPosition = new Vector3(0f, 0f, 0f);
     private final float rotateSpeed = 10f; // Adjust camera rotation speed
@@ -32,13 +33,15 @@ public class MyGameScreen extends ScreenAdapter {
         environment = new MyEnvironment();
         player = new Player();
         modelBatch = new ModelBatch();
-        
 
         Gdx.input.setCursorCatched(true);
         Gdx.input.setCursorPosition(700, 400);
 
         modelLoader = new ModelLoader(new World(new Vector2(0, -9.8f), false));
         playerInstance = modelLoader.getPlayerInstance();
+
+        animationController = new AnimationController(playerInstance);
+
         playerPosition = playerInstance.transform.getTranslation(new Vector3());
 
         Gdx.input.setInputProcessor(new InputAdapter() {
@@ -78,10 +81,11 @@ public class MyGameScreen extends ScreenAdapter {
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             playerInstance.transform.translate(0f, 0f, -moveSpeed * Gdx.graphics.getDeltaTime());
             //player.playAnimation("skinmodel1/Walking.g3db", -1); // Play walk animation
-
+            //animationController.setAnimation("running",-1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             playerInstance.transform.translate(0f, 0f, moveSpeed * Gdx.graphics.getDeltaTime());
+            //animationController.setAnimation("idle",-1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             playerInstance.transform.translate(-moveSpeed * Gdx.graphics.getDeltaTime(), 0f, 0f);
@@ -91,22 +95,6 @@ public class MyGameScreen extends ScreenAdapter {
         }
     }
 
-    private void handleMouse(int screenX, int screenY) {
-        float deltaX = -Gdx.input.getDeltaX() * rotateSpeed;
-        float deltaY = -Gdx.input.getDeltaY() * rotateSpeed;
-
-        // Rotate the player instance around the Y-axis based on mouse X movement
-        playerInstance.transform.rotate(Vector3.Y, deltaX);
-
-        Vector3 right = player.getCamera().direction.cpy().crs(Vector3.Y).nor();
-        player.getCamera().direction.rotate(right, deltaY);
-
-        // Normalize camera direction and update the camera
-        player.getCamera().direction.nor();
-        player.getCamera().up.set(Vector3.Y);
-
-        player.getCamera().update();
-    }
 
     private void updateCameraPosition() {
         // Get the player's current position and orientation
@@ -117,18 +105,22 @@ public class MyGameScreen extends ScreenAdapter {
         float offsetHeight = 1.5f; // Adjust the height offset from the player's position
 
         // Transform the camera position based on the player's orientation
-        Vector3 cameraOffset = new Vector3(0, offsetHeight, -distanceBehind);
+        Vector3 cameraOffset = new Vector3(0, 1.5f, -distanceBehind);
+
         playerInstance.transform.getRotation(new Quaternion()).transform(cameraOffset);
 
-        cameraPosition.set(playerPosition).add(cameraOffset);
+        cameraPosition.set(playerPosition.x,2f,playerPosition.z).add(cameraOffset);
 
         // Update the camera's position and look at the player
-        player.getCamera().position.set(cameraPosition);
+        player.camera.position.set(cameraPosition);
+
         player.getCamera().lookAt(playerPosition);
-        player.getCamera().up.set(Vector3.Y);
+
+        //player.getCamera().up.set(Vector3.Y);
     }
 
-    private void cameraOrientation() {
+
+    private void handleMouse(int screenX, int screenY) {
         // Rotate the camera based on mouse movement
         float deltaX = -Gdx.input.getDeltaX() * rotateSpeed;
         float deltaY = -Gdx.input.getDeltaY() * rotateSpeed;
@@ -138,7 +130,8 @@ public class MyGameScreen extends ScreenAdapter {
 
         // Rotate the camera around its right vector (pitch) based on mouse Y movement
         Vector3 right = player.getCamera().direction.cpy().crs(Vector3.Y).nor();
-        player.getCamera().direction.rotate(right, deltaY);
+
+        player.camera.direction.rotate(right, deltaY);
 
         // Normalize camera direction and update the camera
         player.getCamera().direction.nor();
@@ -153,6 +146,8 @@ public class MyGameScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
+        animationController.update(Gdx.graphics.getDeltaTime());
+
         handleInput();
 
         // Update the player's position
@@ -162,7 +157,7 @@ public class MyGameScreen extends ScreenAdapter {
         updateCameraPosition();
 
         // Orient the camera to follow the player's position and direction
-        cameraOrientation();
+        handleMouse(1920,1080);
 
         player.getCamera().update(); // Update the camera
 
