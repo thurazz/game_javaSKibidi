@@ -29,13 +29,8 @@ public class Player {
 
         camera.update();
     }
-
     public void update() {
 
-        x = position.x;
-        y = position.y;
-        z = position.z;
-        //System.out.println(position.x);
     }
 
     public void move(Vector3 movement) {

@@ -32,6 +32,7 @@ public class MyGameScreen extends ScreenAdapter {
         environment = new MyEnvironment();
         player = new Player();
         modelBatch = new ModelBatch();
+        
 
         Gdx.input.setCursorCatched(true);
         Gdx.input.setCursorPosition(700, 400);
@@ -76,6 +77,8 @@ public class MyGameScreen extends ScreenAdapter {
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             playerInstance.transform.translate(0f, 0f, -moveSpeed * Gdx.graphics.getDeltaTime());
+            //player.playAnimation("skinmodel1/Walking.g3db", -1); // Play walk animation
+
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             playerInstance.transform.translate(0f, 0f, moveSpeed * Gdx.graphics.getDeltaTime());
@@ -110,8 +113,8 @@ public class MyGameScreen extends ScreenAdapter {
         Vector3 playerPosition = playerInstance.transform.getTranslation(new Vector3());
 
         // Calculate the camera position behind the player
-        float distanceBehind = -5f; // Adjust this distance as needed
-        float offsetHeight = 2f; // Adjust the height offset from the player's position
+        float distanceBehind = -2f; // Adjust this distance as needed
+        float offsetHeight = 1.5f; // Adjust the height offset from the player's position
 
         // Transform the camera position based on the player's orientation
         Vector3 cameraOffset = new Vector3(0, offsetHeight, -distanceBehind);
