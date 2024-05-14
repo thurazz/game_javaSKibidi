@@ -74,7 +74,7 @@ public class MyGame extends ApplicationAdapter {
     public void create() {
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0, 0, 0); // Initial camera position (will be set in render)
-        camera.lookAt(playerPosition); // Camera looks at the player
+//        camera.lookAt(playerPosition); // Camera looks at the player
         camera.near = 1f;
         camera.far = 300f;
 

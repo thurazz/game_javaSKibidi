@@ -7,6 +7,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -24,6 +25,10 @@ public class MyGameScreen extends ScreenAdapter {
     private ModelLoader modelLoader;
     private ModelInstance playerInstance;
 
+    private Vector3 playerPosition = new Vector3(0, 0, 0);
+
+    private Vector3 cameraPosition = new Vector3(0f,0f,0f);
+
     private float rotateSpeed = 0.5f; // Adjust camera rotation speed
 
     public MyGameScreen() {
@@ -37,6 +42,9 @@ public class MyGameScreen extends ScreenAdapter {
         modelLoader = new ModelLoader(new World(new Vector2(0, -9.8f),false));
 
         playerInstance = modelLoader.getPlayerInstance();
+
+        playerPosition = playerInstance.transform.getTranslation(new Vector3());
+
 
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
@@ -128,11 +136,28 @@ public class MyGameScreen extends ScreenAdapter {
 
         // Update camera position and orientation
         player.getCamera().position.set(cameraPosition);
+
         player.getCamera().lookAt(playerPosition); // Look at the player's position
+
         player.getCamera().up.set(Vector3.Y); // Set camera's up direction to Y-axis
-        player.getCamera().update(); // Update camera
+
+
+
+        player.camera.update(); // Update camera
     }
 
+    public void cameraorientation(){
+
+        float offsetZ = 10f * MathUtils.sinDeg(Gdx.input.getDeltaX());
+
+        float cameraX = playerPosition.x - 0f;
+        System.out.println(playerPosition.y);
+        float cameraY = playerPosition.y + 80f;
+        float cameraZ = offsetZ + 60f;
+
+        player.camera.position.set(cameraX,cameraY,cameraZ);
+
+    }
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.6f, 0.8f, 1f, 1f); // R, G, B, alpha
@@ -140,18 +165,17 @@ public class MyGameScreen extends ScreenAdapter {
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
         handleInput();
+        ;
 
-        //updateCameraPosition();
+        playerPosition = playerInstance.transform.getTranslation(new Vector3());
 
-        Vector3 playerPosition = playerInstance.transform.getTranslation(new Vector3());
-
-        Vector3 cameraPosition = playerPosition.cpy().add(0f, 80f, 60f); // Adjust camera offset relative to player
+        cameraPosition = playerPosition.cpy().add(0f, 80f, 60f); // Adjust camera offset relative to player
 
         player.getCamera().position.set(cameraPosition);
 
         player.getCamera().lookAt(playerPosition); // Look at the player's position
 
-        player.camera.rotate(25f,0f,0f,0f);
+        cameraorientation();
 
         player.getCamera().update(); // Update camera
 
