@@ -16,26 +16,19 @@ public class Player {
     public float z;
 
     public Player() {
-
-        camera = new PerspectiveCamera(150, 1920, 1080);
+        camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.near = 0.1f;
         camera.far = 10000f;
-
-        position = new Vector3(0, 80f, 60f);
-
-        camera.position.set(0f,0f,0f); // Set camera position to player's position initially
-
-        camera.lookAt(0f,100f,0f); // Make camera look at player's position
-
+        position = new Vector3(0, 1.8f, 0); // Adjust camera height if necessary
+        camera.position.set(position);
+        camera.lookAt(0f, 1.8f, 1f);
         camera.update();
     }
 
-    public void update() {
-
-        x = position.x;
-        y = position.y;
-        z = position.z;
-        //System.out.println(position.x);
+    public void update(Vector3 newPosition) {
+        position.set(newPosition);
+        camera.position.set(position);
+        camera.update();
     }
 
     public void move(Vector3 movement) {
@@ -56,6 +49,7 @@ public class Player {
     }
 
 }
+<<<<<<< Updated upstream
 
 /*
 public class MyGame extends ApplicationAdapter {
@@ -121,3 +115,5 @@ public class MyGame extends ApplicationAdapter {
         modelBatch.dispose();
     }
 }*/
+=======
+>>>>>>> Stashed changes

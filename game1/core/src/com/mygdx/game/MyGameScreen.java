@@ -169,7 +169,13 @@ public class MyGameScreen extends ScreenAdapter {
 
         playerPosition = playerInstance.transform.getTranslation(new Vector3());
 
+<<<<<<< Updated upstream
         cameraPosition = playerPosition.cpy().add(0f, 80f, 60f); // Adjust camera offset relative to player
+=======
+        Vector3 playerPosition = playerInstance.transform.getTranslation(new Vector3());
+
+        Vector3 cameraPosition = playerPosition.cpy().add(0f, 2f, 1f); // Adjust camera offset relative to player
+>>>>>>> Stashed changes
 
         player.getCamera().position.set(cameraPosition);
 
