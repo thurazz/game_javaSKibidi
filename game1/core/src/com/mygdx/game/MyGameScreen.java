@@ -13,7 +13,9 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
-
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class MyGameScreen extends ScreenAdapter {
 
@@ -25,14 +27,20 @@ public class MyGameScreen extends ScreenAdapter {
     private ModelLoader modelLoader;
     private ModelInstance playerInstance;
     private AnimationController animationController;
+
     private Vector3 playerPosition = new Vector3(0, 0, 0);
+
     private Vector3 cameraPosition = new Vector3(0f, 0f, 0f);
+
     private final float rotateSpeed = 10f; // Adjust camera rotation speed
+
+    private List<Bullet> bullets;
 
     public MyGameScreen() {
         environment = new MyEnvironment();
         player = new Player();
         modelBatch = new ModelBatch();
+        bullets = new ArrayList<>();
 
         Gdx.input.setCursorCatched(true);
         Gdx.input.setCursorPosition(700, 400);
@@ -60,6 +68,12 @@ public class MyGameScreen extends ScreenAdapter {
             @Override
             public boolean mouseMoved(int screenX, int screenY) {
                 handleMouse(screenX, screenY);
+                return true;
+            }
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                if (button == Input.Buttons.LEFT) {
+                    shootBullet();
+                }
                 return true;
             }
         });
@@ -95,21 +109,20 @@ public class MyGameScreen extends ScreenAdapter {
         }
     }
 
-
     private void updateCameraPosition() {
         // Get the player's current position and orientation
         Vector3 playerPosition = playerInstance.transform.getTranslation(new Vector3());
 
         // Calculate the camera position behind the player
         float distanceBehind = -2f; // Adjust this distance as needed
-        float offsetHeight = 1.5f; // Adjust the height offset from the player's position
+        float offsetHeight = 1f; // Adjust the height offset from the player's position
 
         // Transform the camera position based on the player's orientation
-        Vector3 cameraOffset = new Vector3(0, 1.5f, -distanceBehind);
+        Vector3 cameraOffset = new Vector3(0, offsetHeight, -distanceBehind);
 
         playerInstance.transform.getRotation(new Quaternion()).transform(cameraOffset);
 
-        cameraPosition.set(playerPosition.x,2f,playerPosition.z).add(cameraOffset);
+        cameraPosition.set(playerPosition.x,170f,playerPosition.z).add(cameraOffset);
 
         // Update the camera's position and look at the player
         player.camera.position.set(cameraPosition);
@@ -131,7 +144,7 @@ public class MyGameScreen extends ScreenAdapter {
         // Rotate the camera around its right vector (pitch) based on mouse Y movement
         Vector3 right = player.camera.direction.cpy().crs(Vector3.Y).nor();
 
-        player.camera.direction.rotate(deltaY,right.x,3f,right.z-10f);
+        player.camera.direction.rotate(deltaY,right.x,170f,right.z);
 
         // Normalize camera direction and update the camera
         player.getCamera().direction.nor();
@@ -140,7 +153,11 @@ public class MyGameScreen extends ScreenAdapter {
 
         player.getCamera().update();
     }
-
+    private void shootBullet(){
+        Vector3 playerPosition = playerInstance.transform.getTranslation(new Vector3());
+        Vector3 bulletDirection = player.camera.direction.cpy();
+        bullets.add(new Bullet(playerPosition, bulletDirection));
+    }
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.6f, 0.8f, 1f, 1f); // R, G, B, alpha
@@ -168,6 +185,17 @@ public class MyGameScreen extends ScreenAdapter {
         if (playerInstance != null) {
             modelBatch.begin(player.getCamera());
             modelBatch.render(playerInstance);
+
+            Iterator<Bullet> bulletIterator = bullets.iterator();
+            while (bulletIterator.hasNext()) {
+                Bullet bullet = bulletIterator.next();
+                bullet.update(delta);
+                if (bullet.isOutOfBounds()) {
+                    bulletIterator.remove();
+                } else {
+                    modelBatch.render(bullet.getBulletInstance());
+                }
+            }
             modelBatch.end();
         }
     }

@@ -24,9 +24,9 @@ public class Player {
 
         position = new Vector3(0, 80f, 60f);
 
-        camera.position.set(0f,0f,0f); // Set camera position to player's position initially
+        camera.position.set(0f,4f,0f); // Set camera position to player's position initially
 
-        camera.lookAt(0f,100f,0f); // Make camera look at player's position
+        //camera.lookAt(0f,0f,0f); // Make camera look at player's position
 
         camera.update();
     }

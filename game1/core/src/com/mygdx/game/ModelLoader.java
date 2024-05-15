@@ -115,10 +115,11 @@ public class ModelLoader {
         playerShape.dispose();
 
         // Position the player slightly above the ground
-        playerInstance.transform.translate(0, 100f, 0);
+        playerInstance.transform.translate(1f, 100f, 1f);
 
         // Scale the player model
         playerInstance.transform.scale(100f, 100f, 100f);
+
         groundInstance.transform.scale(25f, 1f, 18f); // Adjust the scale factor as needed
     }
 
