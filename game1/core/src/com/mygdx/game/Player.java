@@ -16,9 +16,10 @@ public class Player {
     public float z;
 
     public Player() {
-
         camera = new PerspectiveCamera(67, 1920, 1080);
+
         camera.near = 0.1f;
+
         camera.far = 10000f;
 
         position = new Vector3(0, 80f, 60f);
@@ -30,9 +31,7 @@ public class Player {
         camera.update();
     }
     public void update() {
-
     }
-
     public void move(Vector3 movement) {
         position.add(movement); // Update player's position
     }

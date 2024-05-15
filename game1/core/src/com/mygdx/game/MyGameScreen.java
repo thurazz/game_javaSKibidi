@@ -129,12 +129,13 @@ public class MyGameScreen extends ScreenAdapter {
         playerInstance.transform.rotate(Vector3.Y, deltaX);
 
         // Rotate the camera around its right vector (pitch) based on mouse Y movement
-        Vector3 right = player.getCamera().direction.cpy().crs(Vector3.Y).nor();
+        Vector3 right = player.camera.direction.cpy().crs(Vector3.Y).nor();
 
-        player.camera.direction.rotate(right, deltaY);
+        player.camera.direction.rotate(deltaY,right.x,3f,right.z-10f);
 
         // Normalize camera direction and update the camera
         player.getCamera().direction.nor();
+
         player.getCamera().up.set(Vector3.Y);
 
         player.getCamera().update();
