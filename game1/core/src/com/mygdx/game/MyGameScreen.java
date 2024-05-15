@@ -109,27 +109,32 @@ public class MyGameScreen extends ScreenAdapter {
         }
     }
 
-    private void updateCameraPosition() {
-        // Get the player's current position and orientation
+    private void updateCameraPosition(float deltaTime) {
+        // Get the player's current position
         Vector3 playerPosition = playerInstance.transform.getTranslation(new Vector3());
 
-        // Calculate the camera position behind the player
+        // Define the distance behind the player and the height offset
         float distanceBehind = -2f; // Adjust this distance as needed
         float offsetHeight = 1f; // Adjust the height offset from the player's position
 
-        // Transform the camera position based on the player's orientation
-        Vector3 cameraOffset = new Vector3(0, offsetHeight, -distanceBehind);
+        // Calculate the camera offset
+        Vector3 cameraOffset = new Vector3(0, offsetHeight, -distanceBehind); // Negative Z to place the camera behind the player
 
-        playerInstance.transform.getRotation(new Quaternion()).transform(cameraOffset);
+        // Get the player's rotation and transform the camera offset accordingly
+        Quaternion playerRotation = playerInstance.transform.getRotation(new Quaternion());
+        playerRotation.transform(cameraOffset);
 
-        cameraPosition.set(playerPosition.x,170f,playerPosition.z).add(cameraOffset);
+        // Calculate the final camera position
+        Vector3 cameraPosition = new Vector3(playerPosition).add(cameraOffset);
 
-        // Update the camera's position and look at the player
-        player.camera.position.set(cameraPosition);
+        // Update the camera's position
+        player.getCamera().position.set(cameraPosition);
 
+        // Make the camera look at the player's position
         player.getCamera().lookAt(playerPosition);
 
-        //player.getCamera().up.set(Vector3.Y);
+        // Ensure the camera's up vector is correct (optional)
+        player.getCamera().up.set(Vector3.Y);
     }
 
 
@@ -172,7 +177,7 @@ public class MyGameScreen extends ScreenAdapter {
         playerPosition = playerInstance.transform.getTranslation(new Vector3());
 
         // Calculate the camera's position and orientation
-        updateCameraPosition();
+        updateCameraPosition(Gdx.graphics.getDeltaTime());
 
         // Orient the camera to follow the player's position and direction
         handleMouse(1920,1080);

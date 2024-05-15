@@ -24,11 +24,11 @@ public class Bullet {
         // Load bullet model
         UBJsonReader jsonReader = new UBJsonReader();
         G3dModelLoader modelLoader = new G3dModelLoader(jsonReader);
-        Model bulletModel = modelLoader.loadModel(Gdx.files.internal("skinmodel1/player.g3db"));
+        Model bulletModel = modelLoader.loadModel(Gdx.files.internal("bullet/nigga.g3db"));
 
         bulletInstance = new ModelInstance(bulletModel);
 
-        bulletInstance.transform.scale(100f,100f,100f);
+        bulletInstance.transform.scale(0.01f,0.01f,0.01f);
 
         this.position = new Vector3(position);
 
