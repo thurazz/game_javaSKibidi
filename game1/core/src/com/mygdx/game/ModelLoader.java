@@ -2,10 +2,16 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.math.Vector3;
@@ -26,6 +32,9 @@ public class ModelLoader {
     private ModelInstance grrPlayer;
     private ModelInstance playerInstance;
     private World world;
+    private Model modelground;
+    private Texture textureGround;
+    private ModelBuilder modelBuilder = new ModelBuilder();
 
     public ModelLoader(){
 
@@ -37,8 +46,17 @@ public class ModelLoader {
         // Load ground model (assuming "ground.g3db" exists in assets folder)
         UBJsonReader jsonReader = new UBJsonReader();
         G3dModelLoader modelLoader = new G3dModelLoader(jsonReader);
+
+        textureGround = new Texture(Gdx.files.internal("Stylized_Stone_Floor_005_basecolor.jpg"), true);
+        textureGround.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
+        textureGround.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        TextureRegion textureRegion = new TextureRegion(textureGround);
+        int repeats = 10;
+        textureRegion.setRegion(0,0,textureGround.getWidth()*repeats, textureGround.getHeight()*repeats );
+        modelground = modelBuilder.createBox(100f,1f,100f,new Material(TextureAttribute.createDiffuse(textureRegion)),VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
+
         Model groundModel = modelLoader.loadModel(Gdx.files.internal("models/LP.g3db"));
-        groundInstance = new ModelInstance(groundModel);
+        groundInstance = new ModelInstance(modelground);
 
         BodyDef groundBodyDef = new BodyDef();
         groundBodyDef.type = BodyDef.BodyType.StaticBody;
