@@ -17,61 +17,67 @@ import java.util.Random;
 
 public class Monsters {
     private Model monsterModel;
+
     private List<ModelInstance> monsterInstances;
-    private List<BoundingBox> hitboxes;
+
+    public ModelInstance instance;
+
+    private List<BoundingBox> boundingBoxes;
+
     private Random random;
 
-    public Monsters(String modelPath) {
+    public Monsters() {
         UBJsonReader jsonReader = new UBJsonReader();
         G3dModelLoader modelLoader = new G3dModelLoader(jsonReader);
-        monsterModel = modelLoader.loadModel(Gdx.files.internal(modelPath));
+        monsterModel = modelLoader.loadModel(Gdx.files.internal("monsters/Skibidi.g3db"));
         monsterInstances = new ArrayList<>();
-        hitboxes = new ArrayList<>();
+        boundingBoxes = new ArrayList<>();
         random = new Random();
     }
 
     public void spawnMonster() {
 
-        ModelInstance instance = new ModelInstance(monsterModel);
+        instance = new ModelInstance(monsterModel);
 
         float x = random.nextFloat() * 50f - 25f; // Random X position within a range
 
         float z = random.nextFloat() * 50f - 25f; // Random Z position within a range
 
         instance.transform.setToTranslation(x, -100, z);
+
         instance.transform.scale(0.1f,0.1f,0.1f);
+
         monsterInstances.add(instance);
 
         // Create and store the hitbox for this monster
-        BoundingBox hitbox = new BoundingBox();
-        instance.calculateBoundingBox(hitbox);
-        hitbox.mul(instance.transform);
-        hitboxes.add(hitbox);
+        BoundingBox boundingBox = new BoundingBox();
+        instance.calculateBoundingBox(boundingBox);
+        boundingBox.mul(instance.transform);
+        boundingBoxes.add(boundingBox);
     }
 
     public void updateHitboxes() {
-        for (int i = 0; i < monsterInstances.size(); i++) {
-            ModelInstance instance = monsterInstances.get(i);
-            BoundingBox hitbox = hitboxes.get(i);
-            instance.calculateBoundingBox(hitbox);
-            hitbox.mul(instance.transform);
+        boundingBoxes.clear();
+        for (ModelInstance instance : monsterInstances) {
+            BoundingBox boundingBox = new BoundingBox();
+            instance.calculateBoundingBox(boundingBox);
+            boundingBox.mul(instance.transform);
+            boundingBoxes.add(boundingBox);
         }
     }
 
-    public void render(ModelBatch modelBatch, Camera camera) {
-        modelBatch.begin(camera);
+    public void render(ModelBatch modelBatch) {
         for (ModelInstance instance : monsterInstances) {
             modelBatch.render(instance);
         }
-        modelBatch.end();
     }
 
     public List<ModelInstance> getMonsters() {
         return monsterInstances;
     }
 
-    public List<BoundingBox> getHitboxes() {
-        return hitboxes;
+    public List<BoundingBox> getBoundingBoxes() {
+        return boundingBoxes;
     }
 
     public void dispose() {

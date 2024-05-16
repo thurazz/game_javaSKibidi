@@ -13,9 +13,12 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.dongbat.jbump.util.MathUtils.random;
 
 public class MyGameScreen extends ScreenAdapter {
     private final Vector3 tmpVec = new Vector3();
@@ -32,6 +35,7 @@ public class MyGameScreen extends ScreenAdapter {
     private List<Bullet> bullets;
     private float spawnTimer = 0;
     private final float spawnInterval = 5f;
+
     private Monsters monsters;
 
     public MyGameScreen() {
@@ -49,7 +53,7 @@ public class MyGameScreen extends ScreenAdapter {
         animationController = new AnimationController(playerInstance);
         playerPosition = playerInstance.transform.getTranslation(new Vector3());
 
-        monsters = new Monsters("monsters/Skibidi.g3db");
+        monsters = new Monsters();
 
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
@@ -70,6 +74,7 @@ public class MyGameScreen extends ScreenAdapter {
                 return true;
             }
 
+            @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 if (button == Input.Buttons.LEFT) {
                     shootBullet();
@@ -123,8 +128,8 @@ public class MyGameScreen extends ScreenAdapter {
         float deltaX = -Gdx.input.getDeltaX() * rotateSpeed;
         float deltaY = -Gdx.input.getDeltaY() * rotateSpeed;
         playerInstance.transform.rotate(Vector3.Y, deltaX);
-        Vector3 right = player.camera.direction.cpy().crs(Vector3.Y).nor();
-        player.camera.direction.rotate(deltaY, right.x, right.y, right.z);
+        Vector3 right = player.getCamera().direction.cpy().crs(Vector3.Y).nor();
+        player.getCamera().direction.rotate(deltaY, right.x, right.y, right.z);
         player.getCamera().direction.nor();
         player.getCamera().up.set(Vector3.Y);
         player.getCamera().update();
@@ -132,7 +137,7 @@ public class MyGameScreen extends ScreenAdapter {
 
     private void shootBullet() {
         Vector3 playerPosition = playerInstance.transform.getTranslation(new Vector3());
-        Vector3 bulletDirection = player.camera.direction.cpy();
+        Vector3 bulletDirection = player.getCamera().direction.cpy();
         bullets.add(new Bullet(playerPosition, bulletDirection));
     }
 
@@ -152,6 +157,7 @@ public class MyGameScreen extends ScreenAdapter {
 
         // Spawn monsters at intervals
         spawnTimer += delta;
+
         if (spawnTimer >= spawnInterval) {
             monsters.spawnMonster();
             spawnTimer = 0;
@@ -170,8 +176,14 @@ public class MyGameScreen extends ScreenAdapter {
             bullet.update(delta);
             modelBatch.render(bullet.getBulletInstance());
         }
+        monsters.render(modelBatch);
         modelBatch.end();
-        monsters.render(modelBatch, player.getCamera());
+    }
+
+    public void resize(int width, int height) {
+        player.getCamera().viewportWidth = width;
+        player.getCamera().viewportHeight = height;
+        player.getCamera().update();
     }
 
     @Override
