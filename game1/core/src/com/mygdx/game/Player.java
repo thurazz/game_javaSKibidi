@@ -16,7 +16,7 @@ public class Player {
     public float z;
 
     public Player() {
-        camera = new PerspectiveCamera(67, 1920, 1080);
+        camera = new PerspectiveCamera(80, 1920, 1080);
 
         camera.near = 0.1f;
 

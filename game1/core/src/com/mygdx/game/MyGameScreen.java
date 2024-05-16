@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class MyGameScreen extends ScreenAdapter {
-
     private final Vector3 tmpVec = new Vector3();
     private MyEnvironment environment;
     private Player player;
@@ -27,14 +26,13 @@ public class MyGameScreen extends ScreenAdapter {
     private ModelLoader modelLoader;
     private ModelInstance playerInstance;
     private AnimationController animationController;
-
     private Vector3 playerPosition = new Vector3(0, 0, 0);
-
     private Vector3 cameraPosition = new Vector3(0f, 0f, 0f);
-
-    private final float rotateSpeed = 10f; // Adjust camera rotation speed
-
+    private final float rotateSpeed = 10f;
     private List<Bullet> bullets;
+    private float spawnTimer = 0;
+    private final float spawnInterval = 5f;
+    private Monsters monsters;
 
     public MyGameScreen() {
         environment = new MyEnvironment();
@@ -49,8 +47,9 @@ public class MyGameScreen extends ScreenAdapter {
         playerInstance = modelLoader.getPlayerInstance();
 
         animationController = new AnimationController(playerInstance);
-
         playerPosition = playerInstance.transform.getTranslation(new Vector3());
+
+        monsters = new Monsters("monsters/Skibidi.g3db");
 
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
@@ -70,6 +69,7 @@ public class MyGameScreen extends ScreenAdapter {
                 handleMouse(screenX, screenY);
                 return true;
             }
+
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 if (button == Input.Buttons.LEFT) {
                     shootBullet();
@@ -84,22 +84,19 @@ public class MyGameScreen extends ScreenAdapter {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             if (isMouseVisible) {
-                Gdx.input.setCursorCatched(true); // Hide cursor
+                Gdx.input.setCursorCatched(true);
                 isMouseVisible = false;
             } else {
-                Gdx.input.setCursorCatched(false); // Show cursor
+                Gdx.input.setCursorCatched(false);
                 isMouseVisible = true;
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             playerInstance.transform.translate(0f, 0f, -moveSpeed * Gdx.graphics.getDeltaTime());
-            //player.playAnimation("skinmodel1/Walking.g3db", -1); // Play walk animation
-            //animationController.setAnimation("running",-1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             playerInstance.transform.translate(0f, 0f, moveSpeed * Gdx.graphics.getDeltaTime());
-            //animationController.setAnimation("idle",-1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             playerInstance.transform.translate(-moveSpeed * Gdx.graphics.getDeltaTime(), 0f, 0f);
@@ -110,113 +107,83 @@ public class MyGameScreen extends ScreenAdapter {
     }
 
     private void updateCameraPosition(float deltaTime) {
-        // Get the player's current position
         Vector3 playerPosition = playerInstance.transform.getTranslation(new Vector3());
-
-        // Define the distance behind the player and the height offset
-        float distanceBehind = -2f; // Adjust this distance as needed
-        float offsetHeight = 1f; // Adjust the height offset from the player's position
-
-        // Calculate the camera offset
-        Vector3 cameraOffset = new Vector3(0, offsetHeight, -distanceBehind); // Negative Z to place the camera behind the player
-
-        // Get the player's rotation and transform the camera offset accordingly
+        float distanceBehind = -2f;
+        float offsetHeight = 1f;
+        Vector3 cameraOffset = new Vector3(0, offsetHeight, -distanceBehind);
         Quaternion playerRotation = playerInstance.transform.getRotation(new Quaternion());
         playerRotation.transform(cameraOffset);
-
-        // Calculate the final camera position
         Vector3 cameraPosition = new Vector3(playerPosition).add(cameraOffset);
-
-        // Update the camera's position
         player.getCamera().position.set(cameraPosition);
-
-        // Make the camera look at the player's position
         player.getCamera().lookAt(playerPosition);
-
-        // Ensure the camera's up vector is correct (optional)
         player.getCamera().up.set(Vector3.Y);
     }
-
 
     private void handleMouse(int screenX, int screenY) {
-        // Rotate the camera based on mouse movement
         float deltaX = -Gdx.input.getDeltaX() * rotateSpeed;
         float deltaY = -Gdx.input.getDeltaY() * rotateSpeed;
-
-        // Rotate the player instance around the Y-axis based on mouse X movement
         playerInstance.transform.rotate(Vector3.Y, deltaX);
-
-        // Rotate the camera around its right vector (pitch) based on mouse Y movement
         Vector3 right = player.camera.direction.cpy().crs(Vector3.Y).nor();
-
-        player.camera.direction.rotate(deltaY,right.x,170f,right.z);
-
-        // Normalize camera direction and update the camera
+        player.camera.direction.rotate(deltaY, right.x, right.y, right.z);
         player.getCamera().direction.nor();
-
         player.getCamera().up.set(Vector3.Y);
-
         player.getCamera().update();
     }
-    private void shootBullet(){
+
+    private void shootBullet() {
         Vector3 playerPosition = playerInstance.transform.getTranslation(new Vector3());
         Vector3 bulletDirection = player.camera.direction.cpy();
         bullets.add(new Bullet(playerPosition, bulletDirection));
     }
+
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.6f, 0.8f, 1f, 1f); // R, G, B, alpha
+        Gdx.gl.glClearColor(0.6f, 0.8f, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
         animationController.update(Gdx.graphics.getDeltaTime());
 
         handleInput();
-
-        // Update the player's position
         playerPosition = playerInstance.transform.getTranslation(new Vector3());
-
-        // Calculate the camera's position and orientation
         updateCameraPosition(Gdx.graphics.getDeltaTime());
+        handleMouse(1920, 1080);
+        player.getCamera().update();
 
-        // Orient the camera to follow the player's position and direction
-        handleMouse(1920,1080);
-
-        player.getCamera().update(); // Update the camera
-
-        // Render the environment and player model
-        environment.render(modelBatch, player.getCamera());
-
-        if (playerInstance != null) {
-            modelBatch.begin(player.getCamera());
-            modelBatch.render(playerInstance);
-
-            Iterator<Bullet> bulletIterator = bullets.iterator();
-            while (bulletIterator.hasNext()) {
-                Bullet bullet = bulletIterator.next();
-                bullet.update(delta);
-                if (bullet.isOutOfBounds()) {
-                    bulletIterator.remove();
-                } else {
-                    modelBatch.render(bullet.getBulletInstance());
-                }
-            }
-            modelBatch.end();
+        // Spawn monsters at intervals
+        spawnTimer += delta;
+        if (spawnTimer >= spawnInterval) {
+            monsters.spawnMonster();
+            spawnTimer = 0;
         }
+
+        // Update monster hitboxes
+        monsters.updateHitboxes();
+
+        // Render environment, player, bullets, and monsters
+        environment.render(modelBatch, player.getCamera());
+        modelBatch.begin(player.getCamera());
+        if (playerInstance != null) {
+            modelBatch.render(playerInstance);
+        }
+        for (Bullet bullet : bullets) {
+            bullet.update(delta);
+            modelBatch.render(bullet.getBulletInstance());
+        }
+        modelBatch.end();
+        monsters.render(modelBatch, player.getCamera());
     }
 
+    @Override
     public void show() {
         super.show();
-        // Hide the mouse cursor and lock it within the game window
         Gdx.input.setCursorCatched(false);
-        //Gdx.input.setCursorCatched(true);
         isMouseVisible = false;
     }
 
     @Override
     public void hide() {
         super.hide();
-        // Restore the mouse cursor when the game is not active
         Gdx.input.setCursorCatched(false);
         isMouseVisible = true;
     }
@@ -225,5 +192,6 @@ public class MyGameScreen extends ScreenAdapter {
     public void dispose() {
         super.dispose();
         modelBatch.dispose();
+        monsters.dispose();
     }
 }
