@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.math.collision.BoundingBox;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,8 +36,9 @@ public class MyGameScreen extends ScreenAdapter {
     private List<Bullet> bullets;
     private float spawnTimer = 0;
     private final float spawnInterval = 5f;
-
     private Monsters monsters;
+
+    //private Monsters monsters;
 
     public MyGameScreen() {
         environment = new MyEnvironment();
@@ -48,12 +50,14 @@ public class MyGameScreen extends ScreenAdapter {
         Gdx.input.setCursorPosition(700, 400);
 
         modelLoader = new ModelLoader(new World(new Vector2(0, -9.8f), false));
+
         playerInstance = modelLoader.getPlayerInstance();
 
         animationController = new AnimationController(playerInstance);
+
         playerPosition = playerInstance.transform.getTranslation(new Vector3());
 
-        monsters = new Monsters();
+        monsters = new Monsters(this);
 
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
@@ -83,7 +87,12 @@ public class MyGameScreen extends ScreenAdapter {
             }
         });
     }
-
+    public Vector3 getPlayerPosition(){
+        Vector3 position = new Vector3(playerInstance.transform.getTranslation(new Vector3()));
+        position.x += 10f;
+        position.y  =  1f;
+        return position;
+    }
     private void handleInput() {
         float moveSpeed = 3f;
 
@@ -140,7 +149,6 @@ public class MyGameScreen extends ScreenAdapter {
         Vector3 bulletDirection = player.getCamera().direction.cpy();
         bullets.add(new Bullet(playerPosition, bulletDirection));
     }
-
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.6f, 0.8f, 1f, 1f);
@@ -165,6 +173,9 @@ public class MyGameScreen extends ScreenAdapter {
 
         // Update monster hitboxes
         monsters.updateHitboxes();
+        monsters.monstermovment();
+
+        checkBulletCollisions();
 
         // Render environment, player, bullets, and monsters
         environment.render(modelBatch, player.getCamera());
@@ -176,8 +187,31 @@ public class MyGameScreen extends ScreenAdapter {
             bullet.update(delta);
             modelBatch.render(bullet.getBulletInstance());
         }
-        monsters.render(modelBatch);
+        monsters.render(modelBatch, player.getCamera());
         modelBatch.end();
+
+    }
+
+    private void checkBulletCollisions() {
+        Iterator<Bullet> bulletIterator = bullets.iterator();
+
+        while (bulletIterator.hasNext()) {
+            Bullet bullet = bulletIterator.next();
+            BoundingBox bulletBox = bullet.getBoundingBox();
+
+            Iterator<ModelInstance> monsterIterator = monsters.getMonsters().iterator();
+
+            while (monsterIterator.hasNext()) {
+                ModelInstance monster = monsterIterator.next();
+                BoundingBox monsterBox = monsters.getBoundingBoxes().get(monsters.getMonsters().indexOf(monster));
+
+                if (bulletBox.intersects(monsterBox)) {
+                    // Collision detected, handle it here
+                    // For now, just print "collision detected"
+                    System.out.println("Collision detected");
+                }
+            }
+        }
     }
 
     public void resize(int width, int height) {

@@ -53,7 +53,7 @@ public class ModelLoader {
         TextureRegion textureRegion = new TextureRegion(textureGround);
         int repeats = 10;
         textureRegion.setRegion(0,0,textureGround.getWidth()*repeats, textureGround.getHeight()*repeats );
-        modelground = modelBuilder.createBox(100f,1f,100f,new Material(TextureAttribute.createDiffuse(textureRegion)),VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
+        modelground = modelBuilder.createBox(300f,1f,300f,new Material(TextureAttribute.createDiffuse(textureRegion)),VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
 
         Model groundModel = modelLoader.loadModel(Gdx.files.internal("models/LP.g3db"));
         groundInstance = new ModelInstance(modelground);
@@ -67,7 +67,7 @@ public class ModelLoader {
 
         // Define ground shape (box shape)
         PolygonShape groundShape = new PolygonShape();
-        groundShape.setAsBox(25f / 2f, 1f / 2f); // Set half-width and half-height of the ground box
+        groundShape.setAsBox(15f / 2f, 1f / 2f); // Set half-width and half-height of the ground box
 
         // Create fixture definition for the ground
         FixtureDef groundFixtureDef = new FixtureDef();
