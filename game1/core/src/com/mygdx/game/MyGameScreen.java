@@ -4,16 +4,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.dongbat.jbump.util.MathUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,13 +35,23 @@ public class MyGameScreen extends ScreenAdapter {
     private ModelLoader modelLoader;
     private ModelInstance playerInstance;
     private AnimationController animationController;
+    private Bullet gun;
     private Vector3 playerPosition = new Vector3(0, 0, 0);
     private Vector3 cameraPosition = new Vector3(0f, 0f, 0f);
+
+    public Quaternion playerPositionQuaternion = new Quaternion();
+    public Matrix4 playerPositionMatrix4 = new Matrix4();
     private final float rotateSpeed = 10f;
     private List<Bullet> bullets;
+
     private float spawnTimer = 0;
     private final float spawnInterval = 5f;
+
     private Monsters monsters;
+    public boolean gameOver = false;
+    private MyGame game;
+
+    private int c=0;
 
     //private Monsters monsters;
 
@@ -45,7 +60,8 @@ public class MyGameScreen extends ScreenAdapter {
         player = new Player();
         modelBatch = new ModelBatch();
         bullets = new ArrayList<>();
-
+        game = new MyGame();
+        gun = new Bullet();
         Gdx.input.setCursorCatched(true);
         Gdx.input.setCursorPosition(700, 400);
 
@@ -56,7 +72,8 @@ public class MyGameScreen extends ScreenAdapter {
         animationController = new AnimationController(playerInstance);
 
         playerPosition = playerInstance.transform.getTranslation(new Vector3());
-
+        playerPositionQuaternion = playerInstance.transform.getRotation(new Quaternion());
+        playerPositionMatrix4.set(playerPositionQuaternion);
         monsters = new Monsters(this);
 
         Gdx.input.setInputProcessor(new InputAdapter() {
@@ -90,7 +107,7 @@ public class MyGameScreen extends ScreenAdapter {
     public Vector3 getPlayerPosition(){
         Vector3 position = new Vector3(playerInstance.transform.getTranslation(new Vector3()));
         position.x += 10f;
-        position.y  =  1f;
+        position.y  = 1f;
         return position;
     }
     private void handleInput() {
@@ -132,7 +149,9 @@ public class MyGameScreen extends ScreenAdapter {
         player.getCamera().lookAt(playerPosition);
         player.getCamera().up.set(Vector3.Y);
     }
-
+    public int getRotation(){
+        return Gdx.input.getDeltaX();
+    }
     private void handleMouse(int screenX, int screenY) {
         float deltaX = -Gdx.input.getDeltaX() * rotateSpeed;
         float deltaY = -Gdx.input.getDeltaY() * rotateSpeed;
@@ -151,6 +170,21 @@ public class MyGameScreen extends ScreenAdapter {
     }
     @Override
     public void render(float delta) {
+        if (gameOver) {
+            SpriteBatch batch = new SpriteBatch();
+            Texture img = new Texture("SkibidiSound/SkibiFail.png");
+
+            Sound sound = Gdx.audio.newSound(Gdx.files.internal("SkibidiSound/fnaf.mp3"));
+            if(c==0){
+                sound.play(0.5f);
+                c=1;
+            }
+            batch.begin();
+            batch.draw(img, 0, 0);
+            batch.end();
+            return;
+        }
+
         Gdx.gl.glClearColor(0.6f, 0.8f, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
@@ -175,7 +209,12 @@ public class MyGameScreen extends ScreenAdapter {
         monsters.updateHitboxes();
         monsters.monstermovment();
 
+        if (checkPlayerMonsterCollision()) {
+            gameOver = true;
+            System.out.println("Skibiiii");
+        }
         checkBulletCollisions();
+        checkPlayerMonsterCollision();
 
         // Render environment, player, bullets, and monsters
         environment.render(modelBatch, player.getCamera());
@@ -193,25 +232,44 @@ public class MyGameScreen extends ScreenAdapter {
     }
 
     private void checkBulletCollisions() {
-        Iterator<Bullet> bulletIterator = bullets.iterator();
 
-        while (bulletIterator.hasNext()) {
+        for (Iterator<Bullet> bulletIterator = bullets.iterator(); bulletIterator.hasNext();) {
             Bullet bullet = bulletIterator.next();
             BoundingBox bulletBox = bullet.getBoundingBox();
 
-            Iterator<ModelInstance> monsterIterator = monsters.getMonsters().iterator();
+            // check sui mostri
+            for (int i = 0; i < monsters.getMonsters().size(); i++) {
+                BoundingBox monsterBox = monsters.getBoundingBoxes().get(i);
 
-            while (monsterIterator.hasNext()) {
-                ModelInstance monster = monsterIterator.next();
-                BoundingBox monsterBox = monsters.getBoundingBoxes().get(monsters.getMonsters().indexOf(monster));
-
+                // Check for collision
                 if (bulletBox.intersects(monsterBox)) {
-                    // Collision detected, handle it here
-                    // For now, just print "collision detected"
-                    System.out.println("Collision detected");
+                    // Collision detected
+                    monsters.updateMonsterHealth(i, monsters.getMonsterHealt().get(i) - gun.dmg); // Reduce health by 5
+                    bulletIterator.remove(); // Remove bullet
+                    monsters.removeDeadMonsters();
+                    break; //stop ai check
                 }
             }
         }
+    }
+
+    private boolean checkPlayerMonsterCollision() {
+        BoundingBox playerBox = new BoundingBox();
+        playerInstance.calculateBoundingBox(playerBox);
+        playerBox.mul(playerInstance.transform);
+
+        //defines if the monster is in the player AREA
+        Vector3 offset = new Vector3(200f, 5f, 220f);
+        BoundingBox playerSpace = new BoundingBox(playerBox.min.cpy().sub(offset), playerBox.max.cpy().add(offset));
+
+        // Check su tutti i mostri
+        for (BoundingBox monsterBox : monsters.getBoundingBoxes()) {
+            // Check for collision
+            if (playerSpace.intersects(monsterBox)) {
+                return true; // Collision detected
+            }
+        }
+        return false;
     }
 
     public void resize(int width, int height) {

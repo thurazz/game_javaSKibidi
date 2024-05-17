@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -21,6 +22,9 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ModelLoader {
 
@@ -36,8 +40,9 @@ public class ModelLoader {
     private Texture textureGround;
     private ModelBuilder modelBuilder = new ModelBuilder();
 
-    public ModelLoader(){
+    private BoundingBox playerBoundingBox;
 
+    public ModelLoader(){
     }
     public ModelLoader(World world) {
         //this.world = world;
@@ -121,28 +126,17 @@ public class ModelLoader {
         playerInstance.transform.scale(100f, 100f, 100f);
 
         groundInstance.transform.scale(25f, 1f, 18f); // Adjust the scale factor as needed
+
+
     }
 
     public void render(ModelBatch modelBatch) {
-        // Update player logic (e.g., movement)
-
         player.update();
-
-        // Sync camera position and orientation with player's position and orientation
-        //playerInstance.transform.translate(player.x,player.y,player.z-50);
-        //player.getCamera().position.set(player.getPosition()); // Update camera position
-        //player.getCamera().update(); // Update camera
-
-        // Render player and ground instances
-
         modelBatch.render(groundInstance);
         grrInsta = groundInstance;
-        modelBatch.render(playerInstance);
+        //modelBatch.render(playerInstance);
         //System.out.println(playerInstance);
         grrPlayer = playerInstance;
-
-
-        // Apply gravity to the player's body
         playerBody.applyForceToCenter(0, -9.8f * playerBody.getMass(), true);
     }
 

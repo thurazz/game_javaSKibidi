@@ -16,11 +16,13 @@ public class Bullet {
     private Vector3 direction;
     private Vector3 position;
 
-    private float dmg = 1f;
+    public float dmg = 5f;
 
-    private float speed = 1250f; // Adjust speed as needed
+    public float speed = 1400f; // Adjust speed as needed
 
     private BoundingBox boundingBox;
+
+    public Bullet(){}
 
     public Bullet(Vector3 position, Vector3 direction) {
         // Load bullet model
@@ -42,13 +44,11 @@ public class Bullet {
         bulletInstance.calculateBoundingBox(boundingBox);
         boundingBox.mul(bulletInstance.transform);
     }
-
-    public void setDmg(float dmg){
-        this.dmg = this.dmg+dmg;
+    public void setdmg(){
+        dmg = dmg+5;
     }
-
-    public void setSpeed(float speed){
-        this.speed = this.speed+speed;
+    public void setSpeed(){
+        speed = speed+50;
     }
     public void update(float deltaTime) {
         // Move the bullet in the direction it's facing

@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.UBJsonReader;
@@ -20,24 +22,32 @@ import java.util.Random;
 
 public class Monsters {
     private Model monsterModel;
-    private List<ModelInstance> monsterInstances;
-    private List<BoundingBox> boundingBoxes;
-    private List<Float> monsterHealth;
+    public List<ModelInstance> monsterInstances;
+    public List<BoundingBox> boundingBoxes;
+    public List<Float> monsterHealth;
     private ShapeRenderer shapeRenderer;
     private MyGameScreen player;
     private List<Vector3> healthBarPositions;
-    private float monsterSpeed = 150.0f;
+    private int monsterkilled;
+    private float monsterSpeed;
 
+    private Bullet gun;
+
+    private float Healt;
     public Monsters(MyGameScreen player) {
         UBJsonReader jsonReader = new UBJsonReader();
         G3dModelLoader modelLoader = new G3dModelLoader(jsonReader);
         monsterModel = modelLoader.loadModel(Gdx.files.internal("monsters/Skibidi.g3db"));
         monsterInstances = new ArrayList<>();
         boundingBoxes = new ArrayList<>();
+
         monsterHealth = new ArrayList<>();
+
         shapeRenderer = new ShapeRenderer();
         healthBarPositions = new ArrayList<>();
         this.player = player;
+        Healt = 100f;
+        monsterSpeed = 400f;
     }
 
     public void monstermovment() {
@@ -50,16 +60,44 @@ public class Monsters {
             // Calculate the direction vector from the monster to the player
             Vector3 direction = new Vector3(playerPosition).sub(monsterPosition).nor();
 
-            // Move the monster towards the player
+            //move the monster to player location
             monsterPosition.add(direction.scl(monsterSpeed * Gdx.graphics.getDeltaTime()));
 
-            // Update the monster's transformation
+            //update VEctor 3 monster to player
             instance.transform.setTranslation(monsterPosition);
+
             updateHealthBarPositions();
         }
     }
 
+    public void removeDeadMonsters() {
+        Iterator<ModelInstance> instanceIterator = monsterInstances.iterator();
+        Iterator<BoundingBox> boxIterator = boundingBoxes.iterator();
+        Iterator<Float> healthIterator = monsterHealth.iterator();
+
+        while (instanceIterator.hasNext()) {
+            ModelInstance instance = instanceIterator.next();
+            BoundingBox box = boxIterator.next();
+            float health = healthIterator.next();
+
+            if (health <= 0) {
+                // Remove instance, box, and health
+                Sound sound = Gdx.audio.newSound(Gdx.files.internal("SKibidiSound/dead.mp3"));
+                sound.play();
+                instanceIterator.remove();
+                boxIterator.remove();
+                healthIterator.remove();
+                monsterkilled ++;
+                if(monsterkilled % 2  == 0){
+                    Healt = Healt+20;
+                    monsterSpeed = monsterSpeed +50f;
+                }
+            }
+        }
+    }
+
     private void updateHealthBarPositions() {
+
         healthBarPositions.clear(); // Clear existing positions
 
         for (ModelInstance instance : monsterInstances) {
@@ -70,43 +108,32 @@ public class Monsters {
             // Calculate the position for the health bar (top center of the bounding box)
             float barX = (boundingBox.min.x + boundingBox.max.x) / 2;
             float barY = boundingBox.max.y + 0.5f; // Slightly above the bounding box
-            float barZ = (boundingBox.min.z + boundingBox.max.z) / 2; // Centered along the z-axis
+            float barZ = (boundingBox.min.z + boundingBox.max.z) / 2 ; // Centered along the z-axis
 
-            healthBarPositions.add(new Vector3(barX, barY, barZ));
+            healthBarPositions.add(new Vector3(barX, barY, boundingBox.min.z));
         }
     }
 
     public void spawnMonster() {
-        float x = MathUtils.random(-2000f, 2000f);
-        float z = MathUtils.random(-2000f, 2000f);
+        float x = MathUtils.random(-4000f, 4000f);
+        float z = MathUtils.random(-4000f, 4000f);
+
+        Sound sound = Gdx.audio.newSound(Gdx.files.internal("SkibidiSound/spawn.mp3"));
+        sound.play(1.0f);
 
         ModelInstance instance = new ModelInstance(monsterModel);
-
-        instance.transform.setTranslation(x,-75f,z);
-        if(x < 0 && z < 0){
-            instance.transform.rotate(Vector3.Y,180);
-        }
-        if(x>0 && z<0){
-            instance.transform.rotate(Vector3.Y,180);
-        }
-
-
-        System.out.println(instance.transform);
-        System.out.println(x);
-        System.out.println(z);
-
-        //instance.transform.setToTranslation(x, -100f, z);
-
+        instance.transform.setToTranslation(x,1,z);
         instance.transform.scale(0.1f, 0.1f, 0.1f);
 
         monsterInstances.add(instance);
-        monsterHealth.add(100f);
+        monsterHealth.add(Healt);
 
         // Create and store the hitbox for this monster
         BoundingBox boundingBox = new BoundingBox();
         instance.calculateBoundingBox(boundingBox);
         boundingBox.mul(instance.transform);
         boundingBoxes.add(boundingBox);
+        updateHealthBarPositions();
     }
 
     public void updateHitboxes() {
@@ -187,9 +214,25 @@ public class Monsters {
     public List<ModelInstance> getMonsters() {
         return monsterInstances;
     }
+    public List<Float> getMonsterHealt(){
+        return monsterHealth;
+    }
+
+    public void updateMonsterHealth(int index, float health) {
+        setMonsterHealth(index, Math.max(0, health)); // Ensure health doesn't go below 0
+
+    }
 
     public List<BoundingBox> getBoundingBoxes() {
         return boundingBoxes;
+    }
+
+    public void setMonsterHealth(int index, float health) {
+        if (index >= 0 && index < monsterHealth.size()) {
+            monsterHealth.set(index, health);
+        } else {
+            System.out.println("Invalid monster index.");
+        }
     }
 
     public void dispose() {
