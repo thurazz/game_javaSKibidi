@@ -4,6 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -30,7 +33,8 @@ public class Monsters {
     private List<Vector3> healthBarPositions;
     private int monsterkilled;
     private float monsterSpeed;
-
+    SpriteBatch batch ;
+    BitmapFont font;
     private Bullet gun;
 
     private float Healt;
@@ -46,6 +50,14 @@ public class Monsters {
         shapeRenderer = new ShapeRenderer();
         healthBarPositions = new ArrayList<>();
         this.player = player;
+
+        batch = new SpriteBatch();
+        font = new BitmapFont();
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/font.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 50;
+        font = generator.generateFont(parameter);
+        generator.dispose();
         Healt = 100f;
         monsterSpeed = 400f;
     }
@@ -146,6 +158,10 @@ public class Monsters {
     }
 
     public void render(ModelBatch modelBatch, Camera camera) {
+
+        batch.begin();
+        font.draw(batch, "SKibidi uccisi: " +""+monsterkilled, 1500, 950);
+        batch.end();
         for (ModelInstance instance : monsterInstances) {
             modelBatch.render(instance);
         }

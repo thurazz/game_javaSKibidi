@@ -16,9 +16,9 @@ public class Bullet {
     private Vector3 direction;
     private Vector3 position;
 
-    public float dmg = 5f;
+    public float dmg = 10f;
 
-    public float speed = 1400f; // Adjust speed as needed
+    public float speed = 1600f; // Adjust speed as needed
 
     private BoundingBox boundingBox;
 
