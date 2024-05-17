@@ -83,14 +83,14 @@ public class Monsters {
             if (health <= 0) {
                 // Remove instance, box, and health
                 Sound sound = Gdx.audio.newSound(Gdx.files.internal("SKibidiSound/dead.mp3"));
-                sound.play();
+                sound.play(0.4f);
                 instanceIterator.remove();
                 boxIterator.remove();
                 healthIterator.remove();
                 monsterkilled ++;
-                if(monsterkilled % 2  == 0){
-                    Healt = Healt+20;
-                    monsterSpeed = monsterSpeed +50f;
+                if(monsterkilled % 3  == 0){
+                    Healt = Healt+10;
+                    monsterSpeed = monsterSpeed +20f;
                 }
             }
         }

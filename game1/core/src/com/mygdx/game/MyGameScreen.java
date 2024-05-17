@@ -259,7 +259,7 @@ public class MyGameScreen extends ScreenAdapter {
         playerBox.mul(playerInstance.transform);
 
         //defines if the monster is in the player AREA
-        Vector3 offset = new Vector3(200f, 5f, 220f);
+        Vector3 offset = new Vector3(230f, 5f, 245f);
         BoundingBox playerSpace = new BoundingBox(playerBox.min.cpy().sub(offset), playerBox.max.cpy().add(offset));
 
         // Check su tutti i mostri
