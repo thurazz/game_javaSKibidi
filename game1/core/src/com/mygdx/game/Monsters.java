@@ -104,6 +104,9 @@ public class Monsters {
                     Healt = Healt+10;
                     monsterSpeed = monsterSpeed +20f;
                 }
+                if(monsterkilled % 5 == 0 && player.spawnInterval >=2){
+                    player.spawnInterval --;
+                }
             }
         }
     }
@@ -127,8 +130,8 @@ public class Monsters {
     }
 
     public void spawnMonster() {
-        float x = MathUtils.random(-4000f, 4000f);
-        float z = MathUtils.random(-4000f, 4000f);
+        float x = MathUtils.random(-7000f, 7000f);
+        float z = MathUtils.random(-7000f, 7000f);
 
         Sound sound = Gdx.audio.newSound(Gdx.files.internal("SkibidiSound/spawn.mp3"));
         sound.play(1.0f);

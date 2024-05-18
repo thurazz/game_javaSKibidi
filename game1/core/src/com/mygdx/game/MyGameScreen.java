@@ -45,7 +45,8 @@ public class MyGameScreen extends ScreenAdapter {
     private List<Bullet> bullets;
 
     private float spawnTimer = 0;
-    private final float spawnInterval = 5f;
+
+    public float spawnInterval = 6f;
 
     private Monsters monsters;
     public boolean gameOver = false;
