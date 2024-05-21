@@ -149,6 +149,7 @@ public class MyGameScreen extends ScreenAdapter {
         player.getCamera().position.set(cameraPosition);
         player.getCamera().lookAt(playerPosition);
         player.getCamera().up.set(Vector3.Y);
+        player.camera.transform(playerPositionMatrix4);
     }
     public int getRotation(){
         return Gdx.input.getDeltaX();
@@ -162,6 +163,7 @@ public class MyGameScreen extends ScreenAdapter {
         player.getCamera().direction.nor();
         player.getCamera().up.set(Vector3.Y);
         player.getCamera().update();
+
     }
 
     private void shootBullet() {

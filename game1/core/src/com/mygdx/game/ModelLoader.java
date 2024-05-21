@@ -88,7 +88,6 @@ public class ModelLoader {
         groundShape.dispose();
 
 
-
         groundInstance.transform.setToTranslation(0f, 0f, 0f);
 
         //Load player Model

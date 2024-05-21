@@ -75,7 +75,7 @@ public class Monsters {
             //move the monster to player location
             monsterPosition.add(direction.scl(monsterSpeed * Gdx.graphics.getDeltaTime()));
 
-            //update VEctor 3 monster to player
+            //update Vector 3 monster to player
             instance.transform.setTranslation(monsterPosition);
 
             updateHealthBarPositions();
