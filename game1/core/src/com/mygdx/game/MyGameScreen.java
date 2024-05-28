@@ -41,7 +41,7 @@ public class MyGameScreen extends ScreenAdapter {
 
     public Quaternion playerPositionQuaternion = new Quaternion();
     public Matrix4 playerPositionMatrix4 = new Matrix4();
-    private final float rotateSpeed = 10f;
+    private final float rotateSpeed = 0.2f;
     private List<Bullet> bullets;
 
     private float spawnTimer = 0;
@@ -111,6 +111,7 @@ public class MyGameScreen extends ScreenAdapter {
         position.y  = 1f;
         return position;
     }
+
     private void handleInput() {
         float moveSpeed = 3f;
 
@@ -142,6 +143,7 @@ public class MyGameScreen extends ScreenAdapter {
         Vector3 playerPosition = playerInstance.transform.getTranslation(new Vector3());
         float distanceBehind = -2f;
         float offsetHeight = 1f;
+
         Vector3 cameraOffset = new Vector3(0, offsetHeight, -distanceBehind);
         Quaternion playerRotation = playerInstance.transform.getRotation(new Quaternion());
         playerRotation.transform(cameraOffset);
@@ -149,6 +151,7 @@ public class MyGameScreen extends ScreenAdapter {
         player.getCamera().position.set(cameraPosition);
         player.getCamera().lookAt(playerPosition);
         player.getCamera().up.set(Vector3.Y);
+
         player.camera.transform(playerPositionMatrix4);
     }
     public int getRotation(){
